@@ -8,8 +8,11 @@ class UpdateMergedCalendarUseCase @Inject constructor(
     private val localCalendarRepository: LocalCalendarRepository,
     private val mergedCalendarRepository: MergedCalendarRepository,
 ) {
-    suspend operator fun invoke(id: Long, name: String, inputIds: List<Long>) {
-        localCalendarRepository.updateLocalCalendarName(id, name)
-        mergedCalendarRepository.updateMergedCalendar(id, name, inputIds)
+    suspend operator fun invoke(id: Long, name: String, inputIds: List<Long>): Boolean {
+        val updated = localCalendarRepository.updateLocalCalendarName(id, name)
+        if (updated) {
+            mergedCalendarRepository.updateMergedCalendar(id, name, inputIds)
+        }
+        return updated
     }
 }

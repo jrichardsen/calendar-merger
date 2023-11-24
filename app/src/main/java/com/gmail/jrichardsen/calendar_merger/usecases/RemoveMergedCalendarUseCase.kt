@@ -8,8 +8,11 @@ class RemoveMergedCalendarUseCase @Inject constructor(
     private val localCalendarRepository: LocalCalendarRepository,
     private val mergedCalendarRepository: MergedCalendarRepository,
 ) {
-    suspend operator fun invoke(id: Long) {
-        localCalendarRepository.removeLocalCalendar(id)
-        mergedCalendarRepository.removeMergedCalendar(id)
+    suspend operator fun invoke(id: Long): Boolean {
+        val removed = localCalendarRepository.removeLocalCalendar(id)
+        if (removed) {
+            mergedCalendarRepository.removeMergedCalendar(id)
+        }
+        return removed
     }
 }

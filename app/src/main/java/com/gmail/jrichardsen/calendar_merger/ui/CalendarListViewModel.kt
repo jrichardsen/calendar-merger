@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.gmail.jrichardsen.calendar_merger.usecases.GetMergedCalendarsUseCase
 import com.gmail.jrichardsen.calendar_merger.usecases.RemoveMergedCalendarUseCase
 import com.gmail.jrichardsen.calendar_merger.usecases.SyncCalendarsUseCase
+import com.gmail.jrichardsen.calendar_merger.usecases.SyncEventsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,6 +24,7 @@ class CalendarListViewModel @Inject constructor(
     private val scope: CoroutineScope,
     getMergedCalendarsUseCase: GetMergedCalendarsUseCase,
     private val syncCalendarsUseCase: SyncCalendarsUseCase,
+    private val syncEventsUseCase: SyncEventsUseCase,
     private val removeMergedCalendarUseCase: RemoveMergedCalendarUseCase,
 ) : ViewModel() {
 
@@ -49,6 +51,7 @@ class CalendarListViewModel @Inject constructor(
     fun syncCalendars() {
         scope.launch {
             syncCalendarsUseCase()
+            syncEventsUseCase()
         }
     }
 

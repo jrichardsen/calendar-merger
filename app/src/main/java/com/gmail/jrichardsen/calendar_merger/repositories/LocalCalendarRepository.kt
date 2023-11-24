@@ -1,34 +1,48 @@
 package com.gmail.jrichardsen.calendar_merger.repositories
 
-import android.content.ContentResolver
+import android.content.ContentUris
+import android.content.ContentValues
 import android.content.Context
 import android.provider.CalendarContract
+import android.provider.CalendarContract.Calendars
+import android.provider.CalendarContract.Events
+import android.util.Log
 import com.gmail.jrichardsen.calendar_merger.entities.LocalCalendar
 import com.gmail.jrichardsen.calendar_merger.entities.MergedCalendar
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class LocalCalendarRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @ApplicationContext context: Context,
 ) {
+    private val contentResolver = context.contentResolver
+    private val calendarUri = Calendars.CONTENT_URI.buildUpon()
+        .appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
+        .appendQueryParameter(Calendars.ACCOUNT_NAME, "local")
+        .appendQueryParameter(Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL)
+        .build()
+    private val eventsUri = Events.CONTENT_URI.buildUpon()
+        .appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
+        .appendQueryParameter(Calendars.ACCOUNT_NAME, "local")
+        .appendQueryParameter(Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL)
+        .build()
+
+
     suspend fun getLocalCalendars(): List<LocalCalendar> {
         return withContext(Dispatchers.IO) {
             val calendars = mutableListOf<LocalCalendar>()
-            val contentResolver: ContentResolver = context.contentResolver
 
             val projection = arrayOf(
-                CalendarContract.Calendars._ID,
-                CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,
-                CalendarContract.Calendars.ACCOUNT_NAME,
-                CalendarContract.Calendars.ACCOUNT_TYPE
+                Calendars._ID,
+                Calendars.CALENDAR_DISPLAY_NAME,
+                Calendars.ACCOUNT_NAME,
+                Calendars.ACCOUNT_TYPE
             )
 
             val cursor = contentResolver.query(
-                CalendarContract.Calendars.CONTENT_URI,
+                Calendars.CONTENT_URI,
                 projection,
                 null,
                 null,
@@ -38,13 +52,13 @@ class LocalCalendarRepository @Inject constructor(
             cursor?.use {
                 while (it.moveToNext()) {
                     val calendarId =
-                        it.getLong(it.getColumnIndexOrThrow(CalendarContract.Calendars._ID))
+                        it.getLong(it.getColumnIndexOrThrow(Calendars._ID))
                     val calendarName =
-                        it.getString(it.getColumnIndexOrThrow(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME))
+                        it.getString(it.getColumnIndexOrThrow(Calendars.CALENDAR_DISPLAY_NAME))
                     val accountName =
-                        it.getString(it.getColumnIndexOrThrow(CalendarContract.Calendars.ACCOUNT_NAME))
+                        it.getString(it.getColumnIndexOrThrow(Calendars.ACCOUNT_NAME))
                     val accountType =
-                        it.getString(it.getColumnIndexOrThrow(CalendarContract.Calendars.ACCOUNT_TYPE))
+                        it.getString(it.getColumnIndexOrThrow(Calendars.ACCOUNT_TYPE))
                     val account = if (accountType != CalendarContract.ACCOUNT_TYPE_LOCAL) {
                         accountName
                     } else {
@@ -55,61 +69,164 @@ class LocalCalendarRepository @Inject constructor(
                 }
             }
 
-            return@withContext calendars
+            calendars
         }
     }
 
-    suspend fun addLocalCalendar(): Long {
+    suspend fun addLocalCalendar(name: String): Long? {
         // TODO: implement
-        return 0
+        return withContext(Dispatchers.IO) {
+            val values = ContentValues().apply {
+                put(Calendars.ACCOUNT_NAME, "local")
+                put(Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL)
+                put(Calendars.NAME, "$name (merged)")
+                put(Calendars.CALENDAR_DISPLAY_NAME, name)
+                put(Calendars.CALENDAR_COLOR, "#FFFF0000")
+                put(
+                    Calendars.CALENDAR_ACCESS_LEVEL,
+                    Calendars.CAL_ACCESS_OWNER
+                )
+                put(Calendars.OWNER_ACCOUNT, "local")
+            }
+
+            val result = contentResolver.insert(calendarUri, values)
+
+            val id = result?.lastPathSegment?.toLong()
+
+            if (id != null) {
+                Log.d("LocalCalendarRepository", "Added new calendar with id $id")
+            }
+
+            id
+        }
     }
 
-    suspend fun updateLocalCalendarName(id: Long, name: String) {
-        // TODO: implement
+    suspend fun updateLocalCalendarName(id: Long, name: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            val values = ContentValues().apply {
+                put(Calendars.NAME, "$name (merged)")
+                put(Calendars.CALENDAR_DISPLAY_NAME, name)
+            }
+            val uri = ContentUris.withAppendedId(Calendars.CONTENT_URI, id)
+
+            val rowsUpdated = contentResolver.update(uri, values, null, null)
+            Log.d("LocalCalendarRepository", "Updated $rowsUpdated rows from calendar table")
+            rowsUpdated > 0
+        }
     }
 
-    suspend fun removeLocalCalendar(id: Long) {
-        // TODO: implement
+    suspend fun removeLocalCalendar(id: Long): Boolean {
+        return withContext(Dispatchers.IO) {
+            val uri = ContentUris.withAppendedId(Calendars.CONTENT_URI, id)
+
+            val rowsDeleted = contentResolver.delete(uri, null, null)
+            Log.d("LocalCalendarRepository", "Deleted $rowsDeleted rows from calendar table")
+            rowsDeleted > 0
+        }
     }
 
     suspend fun sync(mergedCalendars: List<MergedCalendar>) {
-        // TODO: implement
+        withContext(Dispatchers.IO) {
+            mergedCalendars.forEach { mergedCalendar ->
+                val id = mergedCalendar.localCalendar.id
+                clearEvents(id)
+                mergedCalendar.inputs.forEach { input ->
+                    copyEvents(input.id, id)
+                }
+            }
+        }
+    }
+
+    private fun clearEvents(id: Long) {
+        val selection = "${Events.CALENDAR_ID} = ?"
+        val selectionArgs = arrayOf(id.toString())
+        val rowsDeleted = contentResolver.delete(eventsUri, selection, selectionArgs)
+        Log.d("LocalCalendarRepository", "Deleted $rowsDeleted rows from event table")
+    }
+
+    private fun copyEvents(from: Long, to: Long) {
+        val columns = arrayOf(
+            Events._ID,
+            Events.CALENDAR_ID,
+            Events.ORGANIZER,
+            Events.TITLE,
+            Events.EVENT_LOCATION,
+            Events.DESCRIPTION,
+            Events.EVENT_COLOR,
+            Events.DTSTART,
+            Events.DTEND,
+            Events.EVENT_TIMEZONE,
+            Events.EVENT_END_TIMEZONE,
+            Events.DURATION,
+            Events.ALL_DAY,
+            Events.RRULE,
+            Events.RDATE,
+            Events.EXRULE,
+            Events.EXDATE,
+            Events.ORIGINAL_ID,
+            Events.ORIGINAL_SYNC_ID,
+            Events.ORIGINAL_INSTANCE_TIME,
+            Events.ORIGINAL_ALL_DAY,
+            Events.ACCESS_LEVEL,
+            Events.AVAILABILITY,
+            Events.GUESTS_CAN_MODIFY,
+            Events.GUESTS_CAN_INVITE_OTHERS,
+            Events.GUESTS_CAN_SEE_GUESTS,
+            Events.CUSTOM_APP_PACKAGE,
+            Events.CUSTOM_APP_URI,
+            Events.UID_2445,
+        )
+
+        val selection = "${Events.CALENDAR_ID} = ?"
+        val selectionArgs = arrayOf(from.toString())
+        val cursor =
+            contentResolver.query(Events.CONTENT_URI, columns, selection, selectionArgs, null)
+
+        val events = ArrayList<ContentValues>(cursor?.count ?: 0)
+        cursor?.use { c ->
+            Log.d("LocalCalendarRepository", "Copying ${c.count} events to calendar")
+            while (c.moveToNext()) {
+                val values = ContentValues().apply {
+                    columns.mapIndexed { i, column ->
+                        val value = when (column) {
+                            Events._ID -> null
+                            Events.CALENDAR_ID -> to.toString()
+                            else -> c.getString(i)
+                        }
+                        value?.let {
+                            put(column, it)
+                        }
+                    }
+                    val originalId = c.getString(0)
+                    put(Events.SYNC_DATA1, originalId)
+                    put(Events.SYNC_DATA2, from)
+                }
+                events.add(values)
+            }
+        }
+
+        // Insert events that are not exceptions
+        val baseEvents = events.filter { it.containsKey(Events.ORIGINAL_ID).not() }
+        contentResolver.bulkInsert(eventsUri, baseEvents.toTypedArray())
+
+        // Retrieve the ids of the base events and build an id translation map
+        val idCursor = contentResolver.query(
+            eventsUri,
+            arrayOf(Events._ID, Events.SYNC_DATA1),
+            "(${Events.CALENDAR_ID} == ?) AND (${Events.SYNC_DATA2} == ?)",
+            arrayOf(to.toString(), from.toString()),
+            null
+        )
+        val idMap = HashMap<String, String>()
+        idCursor?.use {
+            while (it.moveToNext()) {
+                idMap[it.getString(1)] = it.getString(0)
+            }
+        }
+
+        // Update the ids and insert them into the database
+        val exceptions = events.filter { it.containsKey(Events.ORIGINAL_ID) }
+        exceptions.forEach { it.put(Events.ORIGINAL_ID, idMap[it.getAsString(Events.ORIGINAL_ID)]) }
+        contentResolver.bulkInsert(eventsUri, exceptions.toTypedArray())
     }
 }
-
-// fun getAllCalendars(context: Context): List<CalendarInfo> {
-//     val calendars = mutableListOf<CalendarInfo>()
-//     val contentResolver: ContentResolver = context.contentResolver
-//
-//     val projection = arrayOf(
-//         CalendarContract.Calendars._ID,
-//         CalendarContract.Calendars.NAME,
-//         CalendarContract.Calendars.ACCOUNT_NAME,
-//         CalendarContract.Calendars.ACCOUNT_TYPE
-//     )
-//
-//     val cursor = contentResolver.query(
-//         CalendarContract.Calendars.CONTENT_URI,
-//         projection,
-//         null,
-//         null,
-//         null
-//     )
-//
-//     cursor?.use {
-//         while (it.moveToNext()) {
-//             val calendarId = it.getLong(it.getColumnIndexOrThrow(CalendarContract.Calendars._ID))
-//             val calendarName =
-//                 it.getString(it.getColumnIndexOrThrow(CalendarContract.Calendars.NAME))
-//             val accountName =
-//                 it.getString(it.getColumnIndexOrThrow(CalendarContract.Calendars.ACCOUNT_NAME))
-//             val accountType =
-//                 it.getString(it.getColumnIndexOrThrow(CalendarContract.Calendars.ACCOUNT_TYPE))
-//
-//             val calendarInfo = CalendarInfo(calendarId, calendarName, accountName, accountType)
-//             calendars.add(calendarInfo)
-//         }
-//     }
-//
-//     return calendars
-// }
