@@ -17,26 +17,24 @@ import com.gmail.jrichardsen.calendar_merger.ui.navigateToEditScreen
 fun AppScreen(
     navController: NavHostController = rememberNavController(),
 ) {
-    MaterialTheme {
-        NavHost(navController, startDestination = ListRoute) {
-            calendarListScreen(
-                onNavigateToAddCalendar = {
-                    navController.navigateToAddScreen()
-                },
-                onNavigateToEditCalendar = {
-                    navController.navigateToEditScreen(it)
-                },
-            )
-            addScreen(
-                onNavigateUp = {
-                    navController.navigateUp()
-                }
-            )
-            editScreen(
-                onNavigateUp = {
-                    navController.navigateUp()
-                }
-            )
-        }
+    NavHost(navController, startDestination = ListRoute) {
+        calendarListScreen(
+            onNavigateToAddCalendar = {
+                navController.navigateToAddScreen()
+            },
+            onNavigateToEditCalendar = {
+                navController.navigateToEditScreen(it)
+            },
+        )
+        addScreen(
+            onNavigateUp = {
+                navController.navigateUp()
+            }
+        )
+        editScreen(
+            onNavigateUp = {
+                navController.navigateUp()
+            }
+        )
     }
 }
