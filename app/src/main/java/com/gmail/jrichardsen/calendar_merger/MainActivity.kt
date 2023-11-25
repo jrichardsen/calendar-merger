@@ -10,11 +10,11 @@ import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
 
 // TODO: add logging to everything
-// TODO: add support for colors
 // TODO: do theming
 // TODO: add dialogs for confirmation of destructive actions
 // TODO: add automatic and manual execution of synchronization
 // TODO: add setting for synchronization interval
+// TODO: new app icon
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {

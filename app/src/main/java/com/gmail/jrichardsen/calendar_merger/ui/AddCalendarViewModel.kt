@@ -3,6 +3,8 @@ package com.gmail.jrichardsen.calendar_merger.ui
 import androidx.lifecycle.viewModelScope
 import com.gmail.jrichardsen.calendar_merger.usecases.AddMergedCalendarUseCase
 import com.gmail.jrichardsen.calendar_merger.usecases.GetDependencySelectionUseCase
+import com.gmail.jrichardsen.calendar_merger.utils.toColor
+import com.gmail.jrichardsen.calendar_merger.utils.toUiColor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.update
@@ -20,8 +22,16 @@ class AddCalendarViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             getDependencySelectionUseCase(null).collect { selection ->
-                mutUiState.update {
-                    it.copy(calendarSelection = selection)
+                mutUiState.update { state ->
+                    state.copy(calendarSelection = selection.map {
+                        CalendarSelectionItemState(
+                            it.calendar.id,
+                            it.calendar.name,
+                            it.calendar.color.toUiColor(),
+                            it.calendar.ownerAccount,
+                            it.selected,
+                        )
+                    })
                 }
             }
         }
@@ -32,10 +42,14 @@ class AddCalendarViewModel @Inject constructor(
         val inputIds = state.calendarSelection.stream().filter {
             it.selected
         }.map {
-            it.calendar.id
+            it.id
         }.collect(Collectors.toList())
         scope.launch {
-            addMergedCalendarUseCase(state.name, inputIds)
+            addMergedCalendarUseCase(
+                state.name,
+                state.color.toColor(),
+                inputIds
+            )
         }
     }
 }

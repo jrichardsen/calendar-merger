@@ -3,6 +3,7 @@ package com.gmail.jrichardsen.calendar_merger.repositories
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
+import android.graphics.Color
 import android.provider.CalendarContract
 import android.provider.CalendarContract.Calendars
 import android.provider.CalendarContract.Events
@@ -37,8 +38,9 @@ class LocalCalendarRepository @Inject constructor(
             val projection = arrayOf(
                 Calendars._ID,
                 Calendars.CALENDAR_DISPLAY_NAME,
+                Calendars.CALENDAR_COLOR,
                 Calendars.ACCOUNT_NAME,
-                Calendars.ACCOUNT_TYPE
+                Calendars.ACCOUNT_TYPE,
             )
 
             val cursor = contentResolver.query(
@@ -51,20 +53,17 @@ class LocalCalendarRepository @Inject constructor(
 
             cursor?.use {
                 while (it.moveToNext()) {
-                    val calendarId =
-                        it.getLong(it.getColumnIndexOrThrow(Calendars._ID))
-                    val calendarName =
-                        it.getString(it.getColumnIndexOrThrow(Calendars.CALENDAR_DISPLAY_NAME))
-                    val accountName =
-                        it.getString(it.getColumnIndexOrThrow(Calendars.ACCOUNT_NAME))
-                    val accountType =
-                        it.getString(it.getColumnIndexOrThrow(Calendars.ACCOUNT_TYPE))
+                    val calendarId = it.getLong(0)
+                    val calendarName = it.getString(1)
+                    val color = Color.valueOf(it.getInt(2))
+                    val accountName = it.getString(3)
+                    val accountType = it.getString(4)
                     val account = if (accountType != CalendarContract.ACCOUNT_TYPE_LOCAL) {
                         accountName
                     } else {
                         null
                     }
-                    val calendar = LocalCalendar(calendarId, calendarName, account)
+                    val calendar = LocalCalendar(calendarId, calendarName, color, account)
                     calendars.add(calendar)
                 }
             }
@@ -73,15 +72,14 @@ class LocalCalendarRepository @Inject constructor(
         }
     }
 
-    suspend fun addLocalCalendar(name: String): Long? {
-        // TODO: implement
+    suspend fun addLocalCalendar(name: String, color: Color): Long? {
         return withContext(Dispatchers.IO) {
             val values = ContentValues().apply {
                 put(Calendars.ACCOUNT_NAME, "local")
                 put(Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL)
                 put(Calendars.NAME, "$name (merged)")
                 put(Calendars.CALENDAR_DISPLAY_NAME, name)
-                put(Calendars.CALENDAR_COLOR, "#FFFF0000")
+                put(Calendars.CALENDAR_COLOR, color.toArgb())
                 put(
                     Calendars.CALENDAR_ACCESS_LEVEL,
                     Calendars.CAL_ACCESS_OWNER
@@ -101,11 +99,12 @@ class LocalCalendarRepository @Inject constructor(
         }
     }
 
-    suspend fun updateLocalCalendarName(id: Long, name: String): Boolean {
+    suspend fun updateLocalCalendarName(id: Long, name: String, color: Color): Boolean {
         return withContext(Dispatchers.IO) {
             val values = ContentValues().apply {
                 put(Calendars.NAME, "$name (merged)")
                 put(Calendars.CALENDAR_DISPLAY_NAME, name)
+                put(Calendars.CALENDAR_COLOR, color.toArgb())
             }
             val uri = ContentUris.withAppendedId(Calendars.CONTENT_URI, id)
 

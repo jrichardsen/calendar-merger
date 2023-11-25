@@ -1,5 +1,6 @@
 package com.gmail.jrichardsen.calendar_merger.repositories
 
+import android.graphics.Color
 import android.util.Log
 import com.gmail.jrichardsen.calendar_merger.database.CalendarDao
 import com.gmail.jrichardsen.calendar_merger.database.CalendarEntity
@@ -15,9 +16,9 @@ import javax.inject.Inject
 class MergedCalendarRepository @Inject constructor(
     private val calendarDao: CalendarDao,
 ) {
-    suspend fun addCalendar(id: Long, name: String, inputIds: List<Long>) {
+    suspend fun addCalendar(id: Long, name: String, color: Color, inputIds: List<Long>) {
         calendarDao.insertCalendarWithDependencies(
-            CalendarEntity(id, name, null), inputIds
+            CalendarEntity(id, name, color.toArgb(), null), inputIds
         )
     }
 
@@ -44,8 +45,8 @@ class MergedCalendarRepository @Inject constructor(
         calendarDao.replaceCalendars(*calendars.map(LocalCalendar::toCalendarEntity).toTypedArray())
     }
 
-    suspend fun updateMergedCalendar(id: Long, name: String, inputIds: List<Long>) {
-        calendarDao.updateCalendar(CalendarEntity(id, name, null), inputIds)
+    suspend fun updateMergedCalendar(id: Long, name: String, color: Color, inputIds: List<Long>) {
+        calendarDao.updateCalendar(CalendarEntity(id, name, color.toArgb(), null), inputIds)
     }
 
     suspend fun removeMergedCalendar(id: Long) {
@@ -57,6 +58,7 @@ fun CalendarEntity.toLocalCalendar(): LocalCalendar {
     return LocalCalendar(
         id = this.id,
         name = this.name,
+        color = Color.valueOf(this.color),
         ownerAccount = this.ownerAccount,
     )
 }
@@ -65,6 +67,7 @@ fun LocalCalendar.toCalendarEntity(): CalendarEntity {
     return CalendarEntity(
         id = this.id,
         name = this.name,
+        color = this.color.toArgb(),
         ownerAccount = this.ownerAccount,
     )
 }

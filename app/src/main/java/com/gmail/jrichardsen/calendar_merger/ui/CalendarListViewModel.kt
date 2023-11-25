@@ -6,16 +6,14 @@ import com.gmail.jrichardsen.calendar_merger.usecases.GetMergedCalendarsUseCase
 import com.gmail.jrichardsen.calendar_merger.usecases.RemoveMergedCalendarUseCase
 import com.gmail.jrichardsen.calendar_merger.usecases.SyncCalendarsUseCase
 import com.gmail.jrichardsen.calendar_merger.usecases.SyncEventsUseCase
+import com.gmail.jrichardsen.calendar_merger.utils.toUiColor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -40,7 +38,11 @@ class CalendarListViewModel @Inject constructor(
                 .map {
                     CalendarListUiState(
                         it.map { calendar ->
-                            CalendarItemUiState(calendar.localCalendar.id, calendar.localCalendar.name)
+                            CalendarItemUiState(
+                                calendar.localCalendar.id,
+                                calendar.localCalendar.name,
+                                calendar.localCalendar.color.toUiColor(),
+                            )
                         })
                 }.collect {
                     _uiState.value = it

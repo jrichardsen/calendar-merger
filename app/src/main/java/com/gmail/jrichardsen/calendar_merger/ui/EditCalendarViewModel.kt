@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.gmail.jrichardsen.calendar_merger.usecases.GetCalendarUseCase
 import com.gmail.jrichardsen.calendar_merger.usecases.GetDependencySelectionUseCase
 import com.gmail.jrichardsen.calendar_merger.usecases.UpdateMergedCalendarUseCase
+import com.gmail.jrichardsen.calendar_merger.utils.toColor
+import com.gmail.jrichardsen.calendar_merger.utils.toUiColor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.update
@@ -27,14 +29,26 @@ class EditCalendarViewModel @Inject constructor(
         viewModelScope.launch {
             getCalendarUseCase(editArgs.calendarId).collect { calendar ->
                 mutUiState.update {
-                    it.copy(id = calendar.id, name = calendar.name)
+                    it.copy(
+                        id = calendar.id,
+                        name = calendar.name,
+                        colorInput = "#%X".format(calendar.color.toArgb())
+                    )
                 }
             }
         }
         viewModelScope.launch {
             getDependencySelectionUseCase(editArgs.calendarId).collect { selection ->
-                mutUiState.update {
-                    it.copy(calendarSelection = selection)
+                mutUiState.update { state ->
+                    state.copy(calendarSelection = selection.map {
+                        CalendarSelectionItemState(
+                            it.calendar.id,
+                            it.calendar.name,
+                            it.calendar.color.toUiColor(),
+                            it.calendar.ownerAccount,
+                            it.selected,
+                        )
+                    })
                 }
             }
         }
@@ -45,10 +59,15 @@ class EditCalendarViewModel @Inject constructor(
         val inputIds = state.calendarSelection.stream().filter {
             it.selected
         }.map {
-            it.calendar.id
+            it.id
         }.collect(Collectors.toList())
         scope.launch {
-            updateMergedCalendarUseCase(editArgs.calendarId, state.name, inputIds)
+            updateMergedCalendarUseCase(
+                editArgs.calendarId,
+                state.name,
+                state.color.toColor(),
+                inputIds
+            )
         }
     }
 }

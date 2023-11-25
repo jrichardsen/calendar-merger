@@ -45,6 +45,7 @@ private fun EditScreen(
     EditCalendarScreen(
         uiState = uiState,
         onChangeName = viewModel::updateName,
+        onChangeColor = viewModel::updateColor,
         onChangeSelection = viewModel::updateSelection,
         onNavigateUp = onNavigateUp,
         onSave = {
