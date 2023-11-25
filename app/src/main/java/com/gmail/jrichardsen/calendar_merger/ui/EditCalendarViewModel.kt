@@ -1,5 +1,6 @@
 package com.gmail.jrichardsen.calendar_merger.ui
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.gmail.jrichardsen.calendar_merger.usecases.GetCalendarUseCase
@@ -22,6 +23,9 @@ class EditCalendarViewModel @Inject constructor(
     private val getDependencySelectionUseCase: GetDependencySelectionUseCase,
     private val updateMergedCalendarUseCase: UpdateMergedCalendarUseCase,
 ) : BaseEditCalendarViewModel() {
+    companion object {
+        private const val TAG = "EditCalendarViewModel"
+    }
 
     private val editArgs = EditArgs(savedStateHandle)
 
@@ -39,6 +43,7 @@ class EditCalendarViewModel @Inject constructor(
         }
         viewModelScope.launch {
             getDependencySelectionUseCase(editArgs.calendarId).collect { selection ->
+                Log.v(TAG, "Updating dependency selection in UI")
                 mutUiState.update { state ->
                     state.copy(calendarSelection = selection.map {
                         CalendarSelectionItemState(
@@ -62,12 +67,16 @@ class EditCalendarViewModel @Inject constructor(
             it.id
         }.collect(Collectors.toList())
         scope.launch {
-            updateMergedCalendarUseCase(
-                editArgs.calendarId,
-                state.name,
-                state.color.toColor(),
-                inputIds
-            )
+            Log.v(TAG, "Updating merged calendar")
+            if (!updateMergedCalendarUseCase(
+                    editArgs.calendarId,
+                    state.name,
+                    state.color.toColor(),
+                    inputIds
+                )
+            ) {
+                Log.e(TAG, "Merged calendar could not be updated")
+            }
         }
     }
 }

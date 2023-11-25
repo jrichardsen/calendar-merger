@@ -18,6 +18,10 @@ import javax.inject.Inject
 class LocalCalendarRepository @Inject constructor(
     @ApplicationContext context: Context,
 ) {
+    companion object {
+        private const val TAG = "LocalCalendarRepository"
+    }
+
     private val contentResolver = context.contentResolver
     private val calendarUri = Calendars.CONTENT_URI.buildUpon()
         .appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
@@ -92,7 +96,7 @@ class LocalCalendarRepository @Inject constructor(
             val id = result?.lastPathSegment?.toLong()
 
             if (id != null) {
-                Log.d("LocalCalendarRepository", "Added new calendar with id $id")
+                Log.i(TAG, "Added new calendar with id $id")
             }
 
             id
@@ -109,7 +113,7 @@ class LocalCalendarRepository @Inject constructor(
             val uri = ContentUris.withAppendedId(Calendars.CONTENT_URI, id)
 
             val rowsUpdated = contentResolver.update(uri, values, null, null)
-            Log.d("LocalCalendarRepository", "Updated $rowsUpdated rows from calendar table")
+            Log.i(TAG, "Updated $rowsUpdated rows from calendar table")
             rowsUpdated > 0
         }
     }
@@ -119,7 +123,7 @@ class LocalCalendarRepository @Inject constructor(
             val uri = ContentUris.withAppendedId(Calendars.CONTENT_URI, id)
 
             val rowsDeleted = contentResolver.delete(uri, null, null)
-            Log.d("LocalCalendarRepository", "Deleted $rowsDeleted rows from calendar table")
+            Log.i(TAG, "Deleted $rowsDeleted rows from calendar table")
             rowsDeleted > 0
         }
     }
@@ -140,7 +144,7 @@ class LocalCalendarRepository @Inject constructor(
         val selection = "${Events.CALENDAR_ID} = ?"
         val selectionArgs = arrayOf(id.toString())
         val rowsDeleted = contentResolver.delete(eventsUri, selection, selectionArgs)
-        Log.d("LocalCalendarRepository", "Deleted $rowsDeleted rows from event table")
+        Log.i(TAG, "Deleted $rowsDeleted rows from event table")
     }
 
     private fun copyEvents(from: Long, to: Long) {
@@ -183,7 +187,7 @@ class LocalCalendarRepository @Inject constructor(
 
         val events = ArrayList<ContentValues>(cursor?.count ?: 0)
         cursor?.use { c ->
-            Log.d("LocalCalendarRepository", "Copying ${c.count} events to calendar")
+            Log.i(TAG, "Copying ${c.count} events to calendar")
             while (c.moveToNext()) {
                 val values = ContentValues().apply {
                     columns.mapIndexed { i, column ->

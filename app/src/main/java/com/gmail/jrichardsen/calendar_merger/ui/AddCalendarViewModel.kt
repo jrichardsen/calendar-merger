@@ -1,5 +1,6 @@
 package com.gmail.jrichardsen.calendar_merger.ui
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.gmail.jrichardsen.calendar_merger.usecases.AddMergedCalendarUseCase
 import com.gmail.jrichardsen.calendar_merger.usecases.GetDependencySelectionUseCase
@@ -18,10 +19,14 @@ class AddCalendarViewModel @Inject constructor(
     private val getDependencySelectionUseCase: GetDependencySelectionUseCase,
     private val addMergedCalendarUseCase: AddMergedCalendarUseCase,
 ) : BaseEditCalendarViewModel() {
+    companion object {
+        private const val TAG = "AddCalendarViewModel"
+    }
 
     init {
         viewModelScope.launch {
             getDependencySelectionUseCase(null).collect { selection ->
+                Log.v(TAG, "Updating dependency selection in UI")
                 mutUiState.update { state ->
                     state.copy(calendarSelection = selection.map {
                         CalendarSelectionItemState(
@@ -45,11 +50,15 @@ class AddCalendarViewModel @Inject constructor(
             it.id
         }.collect(Collectors.toList())
         scope.launch {
-            addMergedCalendarUseCase(
-                state.name,
-                state.color.toColor(),
-                inputIds
-            )
+            Log.v(TAG, "Adding merged calendar")
+            if (!addMergedCalendarUseCase(
+                    state.name,
+                    state.color.toColor(),
+                    inputIds
+                )
+            ) {
+                Log.e(TAG, "Merged calendar could not be added")
+            }
         }
     }
 }

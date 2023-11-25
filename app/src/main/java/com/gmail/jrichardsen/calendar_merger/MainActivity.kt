@@ -3,13 +3,13 @@ package com.gmail.jrichardsen.calendar_merger
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
 
-// TODO: add logging to everything
 // TODO: do theming
 // TODO: add dialogs for confirmation of destructive actions
 // TODO: add automatic and manual execution of synchronization
@@ -18,6 +18,10 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        private const val TAG = "MainActivity"
+    }
 
     private val calendarPermissionCode = 123 // You can choose any code you like
 
@@ -62,6 +66,7 @@ class MainActivity : AppCompatActivity() {
             ) != PackageManager.PERMISSION_GRANTED
         }
         if (missingPermissions.isNotEmpty()) {
+            Log.d(TAG, "Missing permissions, requesting now")
             ActivityCompat.requestPermissions(
                 this,
                 missingPermissions.toTypedArray(),
