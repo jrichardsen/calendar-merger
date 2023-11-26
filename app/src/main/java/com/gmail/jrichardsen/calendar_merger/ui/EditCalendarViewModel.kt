@@ -66,6 +66,7 @@ class EditCalendarViewModel @Inject constructor(
         }.map {
             it.id
         }.collect(Collectors.toList())
+        mutUiState.update { it.copy(dirty = false) }
         scope.launch {
             Log.v(TAG, "Updating merged calendar")
             if (!updateMergedCalendarUseCase(

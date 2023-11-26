@@ -25,14 +25,14 @@ abstract class BaseEditCalendarViewModel : ViewModel() {
     fun updateName(name: String) {
         Log.v(TAG, "Updating name to $name")
         mutUiState.update {
-            it.copy(name = name)
+            it.copy(name = name, dirty = true)
         }
     }
 
     fun updateColor(color: String) {
         Log.v(TAG, "Updating color to $color")
         mutUiState.update {
-            it.copy(colorInput = color)
+            it.copy(colorInput = color, dirty = true)
         }
     }
 
@@ -44,7 +44,7 @@ abstract class BaseEditCalendarViewModel : ViewModel() {
         mutUiState.update {
             val newSelection = ArrayList(it.calendarSelection)
             newSelection[index] = newSelection[index].copy(selected = selected)
-            it.copy(calendarSelection = newSelection)
+            it.copy(calendarSelection = newSelection, dirty = true)
         }
     }
 

@@ -1,5 +1,6 @@
 package com.gmail.jrichardsen.calendar_merger.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,9 +25,12 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,13 +46,21 @@ internal fun EditCalendarScreen(
     onNavigateUp: () -> Unit,
     onSave: () -> Unit,
 ) {
+    val discardDialog = remember { mutableStateOf(false) }
+    val navigateUp = {
+        if (uiState.dirty) {
+            discardDialog.value = true
+        } else {
+            onNavigateUp()
+        }
+    }
+    BackHandler { navigateUp() }
     Scaffold(
         topBar = {
             TopAppBar(title = {
                 Text(if (uiState.id == null) "New calendar" else "Edit calendar")
             }, navigationIcon = {
-                //TODO: if there are unsaved changes, prompt before going back
-                IconButton(onClick = onNavigateUp) {
+                IconButton(onClick = navigateUp) {
                     Icon(Icons.Filled.ArrowBack, "Navigate back")
                 }
             })
@@ -124,6 +137,43 @@ internal fun EditCalendarScreen(
             )
         }
     }
+    if (discardDialog.value) {
+        val onDismiss = { discardDialog.value = false }
+        val onConfirm = {
+            onNavigateUp()
+            onDismiss()
+        }
+        DiscardChangesDialog(
+            onDismiss = onDismiss,
+            onConfirm = onConfirm,
+        )
+    }
+}
+
+@Composable
+private fun DiscardChangesDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    AlertDialog(
+        title = {
+            Text(text = "Discard?")
+        },
+        text = {
+            Text(text = "Any unsaved changes will not be saved.")
+        },
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(text = "Ok")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = "Cancel")
+            }
+        }
+    )
 }
 
 @Preview
@@ -163,5 +213,14 @@ private fun PreviewEditCalendarScreen() {
         onChangeSelection = { _, _ -> },
         onNavigateUp = {},
         onSave = {},
+    )
+}
+
+@Preview
+@Composable
+private fun PreviewDiscardChangesDialog() {
+    DiscardChangesDialog(
+        onDismiss = {},
+        onConfirm = {},
     )
 }

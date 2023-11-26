@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -19,8 +20,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,6 +39,7 @@ internal fun CalendarListScreen(
     onNavigateToAddCalendar: () -> Unit,
     onNavigateToEditCalendar: (calendarId: Long) -> Unit,
 ) {
+    val deleteDialog = remember { mutableStateOf<Long?>(null) }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -71,9 +76,10 @@ internal fun CalendarListScreen(
                                 .background(calendar.color)
                         )
                     },
-                    // TODO: show dialog before deleting calendar
                     trailingContent = {
-                        IconButton(onClick = { onDeleteCalendar(calendar.id) }) {
+                        IconButton(onClick = {
+                            deleteDialog.value = calendar.id
+                        }) {
                             Icon(Icons.Filled.Delete, "Delete calendar")
                         }
                     },
@@ -85,6 +91,41 @@ internal fun CalendarListScreen(
             }
         }
     }
+    deleteDialog.value?.let {
+        val onDismiss = { deleteDialog.value = null }
+        val onDelete = {
+            onDeleteCalendar(it)
+            onDismiss()
+        }
+        DeleteDialog(onDismiss, onDelete)
+    }
+}
+
+@Composable
+private fun DeleteDialog(onDismiss: () -> Unit, onDelete: () -> Unit) {
+    AlertDialog(
+        title = {
+            Text(text = "Delete calendar?")
+        },
+        text = {
+            Text(text = "The calendar, including all its events, will be deleted from your system. The calendars it was merged from will not change.")
+        },
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = onDelete
+            ) {
+                Text("Ok")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+            ) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 @Preview
@@ -101,6 +142,15 @@ private fun PreviewCalendarListScreen() {
         onDeleteCalendar = {},
         onNavigateToAddCalendar = {},
         onNavigateToEditCalendar = {},
+    )
+}
+
+@Preview
+@Composable
+private fun PreviewDeleteDialog() {
+    DeleteDialog(
+        onDismiss = {},
+        onDelete = {},
     )
 }
 

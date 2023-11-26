@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat
 import com.gmail.jrichardsen.calendar_merger.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
-// TODO: add dialogs for confirmation of destructive actions
 // TODO: add automatic and manual execution of synchronization
 // TODO: add setting for synchronization interval
 // TODO: new app icon

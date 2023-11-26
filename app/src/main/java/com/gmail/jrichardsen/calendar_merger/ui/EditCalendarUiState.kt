@@ -8,6 +8,7 @@ data class EditCalendarUiState(
     val name: String,
     val colorInput: String,
     val calendarSelection: List<CalendarSelectionItemState>,
+    val dirty: Boolean = false,
 ) {
     val canSave = name.isNotEmpty() && calendarSelection.any(CalendarSelectionItemState::selected)
     val color = try {
