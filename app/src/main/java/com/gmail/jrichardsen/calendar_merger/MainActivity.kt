@@ -9,9 +9,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.gmail.jrichardsen.calendar_merger.ui.theme.AppTheme
+import com.gmail.jrichardsen.calendar_merger.usecases.ScheduleSyncServiceUseCase
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-// TODO: add automatic and manual execution of synchronization
 // TODO: add setting for synchronization interval
 // TODO: new app icon
 // TODO: add string resources and translation
@@ -24,6 +25,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val calendarPermissionCode = 123 // You can choose any code you like
+
+    @Inject
+    lateinit var scheduleSyncServiceUseCase: ScheduleSyncServiceUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,11 +51,12 @@ class MainActivity : AppCompatActivity() {
         when (requestCode) {
             calendarPermissionCode -> {
                 // TODO: proper handling of missing permissions
-                // if (!(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                //     throw RuntimeException("I want the permission");
-                // } else {
-                //     Log.d("Calendar", "Permission granted")
-                // }
+                if (!(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    throw RuntimeException("I want the permission")
+                } else {
+                    Log.d(TAG, "Permission granted")
+                    scheduleSyncServiceUseCase()
+                }
             }
         }
     }
@@ -74,6 +79,8 @@ class MainActivity : AppCompatActivity() {
                 missingPermissions.toTypedArray(),
                 calendarPermissionCode
             )
+        } else {
+            scheduleSyncServiceUseCase()
         }
     }
 

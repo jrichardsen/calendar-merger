@@ -25,6 +25,10 @@ abstract class CalendarDao {
     abstract fun getDependencySelections(id: Long?): Flow<List<DependencySelection>>
 
     @Transaction
+    @Query("SELECT * FROM calendars WHERE id=:id")
+    abstract fun getMergedCalendar(id: Long): Flow<CalendarWithDependencies>
+
+    @Transaction
     @Query(
         "SELECT * " +
                 "FROM calendars " +

@@ -14,7 +14,7 @@ class AddMergedCalendarUseCase @Inject constructor(
         private const val TAG = "AddMergedCalenderUseCase"
     }
 
-    suspend operator fun invoke(name: String, color: Color, inputIds: List<Long>): Boolean {
+    suspend operator fun invoke(name: String, color: Color, inputIds: List<Long>): Long? {
         Log.v(TAG, "Adding new calendar")
         val id = localCalendarRepository.addLocalCalendar(name, color)
         if (id != null) {
@@ -22,6 +22,6 @@ class AddMergedCalendarUseCase @Inject constructor(
         } else {
             Log.w(TAG, "Calendar was not added locally, omitting database update")
         }
-        return id != null
+        return id
     }
 }

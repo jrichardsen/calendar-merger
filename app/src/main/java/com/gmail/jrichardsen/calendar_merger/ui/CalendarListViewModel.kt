@@ -34,6 +34,7 @@ class CalendarListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            syncCalendarsUseCase()
             getMergedCalendarsUseCase()
                 .map {
                     CalendarListUiState(
@@ -50,10 +51,10 @@ class CalendarListViewModel @Inject constructor(
         }
     }
 
-    fun syncCalendars() {
+    fun sync(callback: () -> Unit) {
         scope.launch {
-            syncCalendarsUseCase()
             syncEventsUseCase()
+            callback()
         }
     }
 

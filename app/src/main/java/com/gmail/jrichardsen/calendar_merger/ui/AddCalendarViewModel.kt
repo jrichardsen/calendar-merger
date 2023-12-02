@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.gmail.jrichardsen.calendar_merger.usecases.AddMergedCalendarUseCase
 import com.gmail.jrichardsen.calendar_merger.usecases.GetDependencySelectionUseCase
+import com.gmail.jrichardsen.calendar_merger.usecases.SyncEventsUseCase
 import com.gmail.jrichardsen.calendar_merger.utils.toColor
 import com.gmail.jrichardsen.calendar_merger.utils.toUiColor
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,6 +19,7 @@ class AddCalendarViewModel @Inject constructor(
     private val scope: CoroutineScope,
     private val getDependencySelectionUseCase: GetDependencySelectionUseCase,
     private val addMergedCalendarUseCase: AddMergedCalendarUseCase,
+    private val syncEventsUseCase: SyncEventsUseCase,
 ) : BaseEditCalendarViewModel() {
     companion object {
         private const val TAG = "AddCalendarViewModel"
@@ -52,12 +54,14 @@ class AddCalendarViewModel @Inject constructor(
         mutUiState.update { it.copy(dirty = false) }
         scope.launch {
             Log.v(TAG, "Adding merged calendar")
-            if (!addMergedCalendarUseCase(
-                    state.name,
-                    state.color.toColor(),
-                    inputIds
-                )
-            ) {
+            val id = addMergedCalendarUseCase(
+                state.name,
+                state.color.toColor(),
+                inputIds
+            )
+            if (id != null) {
+                syncEventsUseCase(id)
+            } else {
                 Log.e(TAG, "Merged calendar could not be added")
             }
         }

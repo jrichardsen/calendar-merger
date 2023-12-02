@@ -27,6 +27,10 @@ class MergedCalendarRepository @Inject constructor(
         )
     }
 
+    fun getMergedCalendar(id: Long): Flow<MergedCalendar> {
+        return calendarDao.getMergedCalendar(id).map { it.toMergedCalendar() }
+    }
+
     fun getMergedCalendars(): Flow<List<MergedCalendar>> {
         return calendarDao.getMergedCalendars().map {
             it.map(CalendarWithDependencies::toMergedCalendar)

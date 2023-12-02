@@ -19,7 +19,7 @@ fun NavGraphBuilder.calendarListScreen(
         val uiState: CalendarListUiState by viewModel.uiState.collectAsStateWithLifecycle()
         CalendarListScreen(
             uiState,
-            viewModel::syncCalendars,
+            viewModel::sync,
             viewModel::deleteCalendar,
             onNavigateToAddCalendar,
             onNavigateToEditCalendar,
