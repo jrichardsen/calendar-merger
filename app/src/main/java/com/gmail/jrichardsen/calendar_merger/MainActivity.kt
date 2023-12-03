@@ -11,11 +11,13 @@ import androidx.core.content.ContextCompat
 import com.gmail.jrichardsen.calendar_merger.ui.theme.AppTheme
 import com.gmail.jrichardsen.calendar_merger.usecases.ScheduleSyncServiceUseCase
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// TODO: add setting for synchronization interval
 // TODO: new app icon
 // TODO: add string resources and translation
+// TODO: make merged calendars read-only
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -25,6 +27,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val calendarPermissionCode = 123 // You can choose any code you like
+
+    @Inject
+    lateinit var scope: CoroutineScope
 
     @Inject
     lateinit var scheduleSyncServiceUseCase: ScheduleSyncServiceUseCase
@@ -55,7 +60,7 @@ class MainActivity : AppCompatActivity() {
                     throw RuntimeException("I want the permission")
                 } else {
                     Log.d(TAG, "Permission granted")
-                    scheduleSyncServiceUseCase()
+                    scope.launch { scheduleSyncServiceUseCase() }
                 }
             }
         }
@@ -80,7 +85,7 @@ class MainActivity : AppCompatActivity() {
                 calendarPermissionCode
             )
         } else {
-            scheduleSyncServiceUseCase()
+            scope.launch { scheduleSyncServiceUseCase() }
         }
     }
 

@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+option java_package = "com.gmail.jrichardsen.calendar_merger.data";
+option java_multiple_files = true;
+
+message SettingsMessage {
+  optional int64 sync_interval_minutes = 1;
+}

@@ -12,7 +12,8 @@ const val ListRoute = "list"
 
 fun NavGraphBuilder.calendarListScreen(
     onNavigateToAddCalendar: () -> Unit,
-    onNavigateToEditCalendar: (calendarId: Long) -> Unit
+    onNavigateToEditCalendar: (calendarId: Long) -> Unit,
+    onNavigateToSettings: () -> Unit,
 ) {
     composable(ListRoute) {
         val viewModel: CalendarListViewModel = hiltViewModel()
@@ -23,6 +24,7 @@ fun NavGraphBuilder.calendarListScreen(
             viewModel::deleteCalendar,
             onNavigateToAddCalendar,
             onNavigateToEditCalendar,
+            onNavigateToSettings,
         )
     }
 }

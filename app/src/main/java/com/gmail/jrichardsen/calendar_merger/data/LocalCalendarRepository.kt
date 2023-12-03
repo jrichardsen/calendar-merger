@@ -1,4 +1,4 @@
-package com.gmail.jrichardsen.calendar_merger.repositories
+package com.gmail.jrichardsen.calendar_merger.data
 
 import android.content.ContentUris
 import android.content.ContentValues

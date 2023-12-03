@@ -1,8 +1,8 @@
 package com.gmail.jrichardsen.calendar_merger.usecases
 
 import android.util.Log
-import com.gmail.jrichardsen.calendar_merger.repositories.LocalCalendarRepository
-import com.gmail.jrichardsen.calendar_merger.repositories.MergedCalendarRepository
+import com.gmail.jrichardsen.calendar_merger.data.LocalCalendarRepository
+import com.gmail.jrichardsen.calendar_merger.data.MergedCalendarRepository
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 

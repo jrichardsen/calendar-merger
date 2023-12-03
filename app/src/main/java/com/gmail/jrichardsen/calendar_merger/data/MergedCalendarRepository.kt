@@ -1,11 +1,7 @@
-package com.gmail.jrichardsen.calendar_merger.repositories
+package com.gmail.jrichardsen.calendar_merger.data
 
 import android.graphics.Color
 import android.util.Log
-import com.gmail.jrichardsen.calendar_merger.database.CalendarDao
-import com.gmail.jrichardsen.calendar_merger.database.CalendarEntity
-import com.gmail.jrichardsen.calendar_merger.database.CalendarWithDependencies
-import com.gmail.jrichardsen.calendar_merger.database.DependencySelection
 import com.gmail.jrichardsen.calendar_merger.entities.CalendarSelectionItem
 import com.gmail.jrichardsen.calendar_merger.entities.LocalCalendar
 import com.gmail.jrichardsen.calendar_merger.entities.MergedCalendar

@@ -1,4 +1,4 @@
-package com.gmail.jrichardsen.calendar_merger.database
+package com.gmail.jrichardsen.calendar_merger.data
 
 import androidx.annotation.ColorInt
 import androidx.room.ColumnInfo
