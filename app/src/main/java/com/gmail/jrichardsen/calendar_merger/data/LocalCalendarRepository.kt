@@ -86,7 +86,7 @@ class LocalCalendarRepository @Inject constructor(
                 put(Calendars.CALENDAR_COLOR, color.toArgb())
                 put(
                     Calendars.CALENDAR_ACCESS_LEVEL,
-                    Calendars.CAL_ACCESS_OWNER
+                    Calendars.CAL_ACCESS_READ,
                 )
                 put(Calendars.OWNER_ACCOUNT, "local")
             }
