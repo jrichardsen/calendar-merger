@@ -15,8 +15,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// TODO: new app icon
-// TODO: add string resources and translation
 // TODO: make merged calendars read-only
 
 @AndroidEntryPoint
