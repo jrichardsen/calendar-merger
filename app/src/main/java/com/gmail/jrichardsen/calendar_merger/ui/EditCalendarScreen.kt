@@ -33,8 +33,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.gmail.jrichardsen.calendar_merger.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,10 +60,15 @@ internal fun EditCalendarScreen(
     Scaffold(
         topBar = {
             TopAppBar(title = {
-                Text(if (uiState.id == null) "New calendar" else "Edit calendar")
+                Text(
+                    stringResource(
+                        if (uiState.id == null) R.string.new_calendar else
+                            R.string.edit_calendar
+                    )
+                )
             }, navigationIcon = {
                 IconButton(onClick = navigateUp) {
-                    Icon(Icons.Filled.ArrowBack, "Navigate back")
+                    Icon(Icons.Filled.ArrowBack, stringResource(R.string.navigate_back))
                 }
             })
         },
@@ -72,7 +79,7 @@ internal fun EditCalendarScreen(
         ) {
             TextField(
                 value = uiState.name, onValueChange = onChangeName, label = {
-                    Text("Name")
+                    Text(stringResource(R.string.name))
                 },
                 singleLine = true, modifier = Modifier
                     .padding(16.dp, 8.dp)
@@ -80,7 +87,7 @@ internal fun EditCalendarScreen(
             )
             TextField(
                 value = uiState.colorInput, onValueChange = onChangeColor, label = {
-                    Text("Color")
+                    Text(stringResource(R.string.color))
                 }, trailingIcon = {
                     Box(
                         Modifier
@@ -94,7 +101,7 @@ internal fun EditCalendarScreen(
             )
             Spacer(Modifier.size(16.dp))
             Text(
-                text = "Calendars to merge",
+                text = stringResource(R.string.calendars_to_merge),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(16.dp, 8.dp)
             )
@@ -117,7 +124,7 @@ internal fun EditCalendarScreen(
                             )
                         },
                         supportingContent = {
-                            Text(it.ownerAccount ?: "local")
+                            Text(it.ownerAccount ?: stringResource(R.string.local))
                         },
                         trailingContent = {
                             Checkbox(checked = it.selected, onCheckedChange = {
@@ -128,7 +135,7 @@ internal fun EditCalendarScreen(
                 }
             }
             Button(
-                content = { Text("Save") },
+                content = { Text(stringResource(R.string.save)) },
                 enabled = uiState.canSave,
                 onClick = { onSave() },
                 modifier = Modifier
@@ -157,20 +164,20 @@ private fun DiscardChangesDialog(
 ) {
     AlertDialog(
         title = {
-            Text(text = "Discard?")
+            Text(text = stringResource(R.string.discard_dialog_title))
         },
         text = {
-            Text(text = "Any unsaved changes will not be saved.")
+            Text(text = stringResource(R.string.discard_dialog_text))
         },
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text(text = "Ok")
+                Text(text = stringResource(R.string.ok))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = "Cancel")
+                Text(text = stringResource(R.string.cancel))
             }
         }
     )

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Calendar Merger</string>
+    <string name="settings">Einstellungen</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="calendar_list_title">Kalender</string>
+    <string name="calendars_synchronized">Kalender synchronisiert</string>
+    <string name="add_new_calendar">Neuen Kalendar hinzufügen</string>
+    <string name="delete_calendar">Kalender löschen</string>
+    <string name="calendar_list_empty_message">Es gibt aktuell keine zusammengeführten Kalender. Mit dem Hinzufügen Button in der unteren rechten Ecke kannst du einen erstellen.</string>
+    <string name="delete_calendar_dialog_title">Kalender löschen?</string>
+    <string name="delete_calendar_dialog_text">Der Kalender und alle enthaltenen Termine werden von deinem System entfernt. Die Kalender, von denen er abhängt, werden nicht verändert.</string>
+    <string name="new_calendar">Neuer Kalender</string>
+    <string name="edit_calendar">Kalender bearbeiten</string>
+    <string name="navigate_back">Navigiere zurück</string>
+    <string name="name">Name</string>
+    <string name="color">Farbe</string>
+    <string name="calendars_to_merge">Zusammenzuführende Kalender</string>
+    <string name="local">lokal</string>
+    <string name="save">Speichern</string>
+    <string name="discard_dialog_title">Bearbeitung abbrechen?</string>
+    <string name="discard_dialog_text">Ungespeicherte Änderungen werden verworfen.</string>
+    <string name="sync_interval_never">Niemals</string>
+    <string name="sync_interval_15_minutes">Alle 15 Minuten</string>
+    <string name="sync_interval_1_hour">Jede Stunde</string>
+    <string name="sync_interval_4_hours">Alle 4 Stunden</string>
+    <string name="sync_interval_12_hours">Alle 12 Stunden</string>
+    <string name="sync_interval_24_hours">Alle 24 Stunden</string>
+    <string name="synchronize_merged_calendars">Zusammengeführte Kalender synchronisieren</string>
+</resources>

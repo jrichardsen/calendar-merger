@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.gmail.jrichardsen.calendar_merger.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,10 +34,10 @@ internal fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(title = {
-                Text("Settings")
+                Text(stringResource(R.string.settings))
             }, navigationIcon = {
                 IconButton(onClick = onNavigateUp) {
-                    Icon(Icons.Filled.ArrowBack, "Navigate back")
+                    Icon(Icons.Filled.ArrowBack, stringResource(R.string.navigate_back))
                 }
             })
         }
@@ -44,7 +45,7 @@ internal fun SettingsScreen(
         Column(Modifier.padding(innerPadding)) {
             ListItem(
                 headlineContent = {
-                    Text("Synchronize merged calendars")
+                    Text(stringResource(R.string.synchronize_merged_calendars))
                 },
                 supportingContent = {
                     Text(stringResource(id = uiState.selectedSyncIntervalOption.name))

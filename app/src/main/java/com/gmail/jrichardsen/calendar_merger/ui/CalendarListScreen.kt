@@ -34,9 +34,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.gmail.jrichardsen.calendar_merger.R
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,27 +58,31 @@ internal fun CalendarListScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Merged Calendars")
+                    Text(stringResource(R.string.calendar_list_title))
                 },
                 actions = {
+                    val message = stringResource(R.string.calendars_synchronized)
                     IconButton(onClick = {
                         onSync {
                             scope.launch {
-                                snackBarHostState.showSnackbar("Calendars synchronized")
+                                snackBarHostState.showSnackbar(message)
                             }
                         }
                     }) {
-                        Icon(Icons.Filled.Sync, "Synchronize merged calendars")
+                        Icon(
+                            Icons.Filled.Sync,
+                            stringResource(R.string.synchronize_merged_calendars)
+                        )
                     }
                     IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Filled.Settings, "Settings")
+                        Icon(Icons.Filled.Settings, stringResource(R.string.settings))
                     }
                 }
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onNavigateToAddCalendar) {
-                Icon(Icons.Filled.Add, "Add new calendar")
+                Icon(Icons.Filled.Add, stringResource(R.string.add_new_calendar))
             }
         },
         snackbarHost = {
@@ -105,7 +111,7 @@ internal fun CalendarListScreen(
                             IconButton(onClick = {
                                 deleteDialog.value = calendar.id
                             }) {
-                                Icon(Icons.Filled.Delete, "Delete calendar")
+                                Icon(Icons.Filled.Delete, stringResource(R.string.delete_calendar))
                             }
                         },
                         modifier = Modifier
@@ -123,7 +129,7 @@ internal fun CalendarListScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    "There are currently no merged calendars. You can create one by pressing the Add button in the bottom right corner.",
+                    stringResource(R.string.calendar_list_empty_message),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(64.dp),
                     color = MaterialTheme.colorScheme.secondary
@@ -145,24 +151,24 @@ internal fun CalendarListScreen(
 private fun DeleteDialog(onDismiss: () -> Unit, onDelete: () -> Unit) {
     AlertDialog(
         title = {
-            Text(text = "Delete calendar?")
+            Text(text = stringResource(R.string.delete_calendar_dialog_title))
         },
         text = {
-            Text(text = "The calendar, including all its events, will be deleted from your system. The calendars it was merged from will not change.")
+            Text(text = stringResource(R.string.delete_calendar_dialog_text))
         },
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(
                 onClick = onDelete
             ) {
-                Text("Ok")
+                Text(stringResource(R.string.ok))
             }
         },
         dismissButton = {
             TextButton(
                 onClick = onDismiss,
             ) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
