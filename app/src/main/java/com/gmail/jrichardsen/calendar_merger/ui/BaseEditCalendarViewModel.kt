@@ -15,7 +15,7 @@ abstract class BaseEditCalendarViewModel : ViewModel() {
         EditCalendarUiState(
             id = null,
             name = "",
-            colorInput = "red",
+            colorInput = "#FF0000",
             calendarSelection = emptyList()
         )
     )
